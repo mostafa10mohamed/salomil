@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SALOMIL – HPL Surfaces</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#c8102e">
+<style>
+:root{--red:#c8102e;--red2:#8f0a20;--bg:#f7f6f4;--card:#fff;--fg:#17181a;--mut:#6b6f76;--line:#e3e1dd;--r:16px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:"Segoe UI",Tahoma,"Helvetica Neue",Arial,sans-serif;min-height:100vh;
+ padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+body:before{content:"";position:fixed;inset:0;z-index:-1;background:
+ linear-gradient(135deg,var(--red) 0 90px,transparent 90px),
+ linear-gradient(315deg,var(--red) 0 90px,#222 90px 130px,transparent 130px),var(--bg);opacity:.95}
+.wrap{max-width:540px;margin:0 auto;padding:22px 16px 40px}
+.logo{display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0 10px}
+.logo .mk{width:48px;height:48px;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:900;font-size:30px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+.logo b{font-size:34px;letter-spacing:1px;display:block;line-height:1}.logo small{font-weight:700;font-size:12px;letter-spacing:.5px}
+.card{background:var(--card);border-radius:22px;padding:22px 18px;box-shadow:0 10px 40px #0001;animation:up .5s both}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+h1{text-align:center;font-weight:300;font-size:30px;margin:4px 0}
+h2{font-weight:300;text-align:center;margin:6px 0;font-size:22px}
+.sub{text-align:center;color:var(--mut);margin:6px 0 14px;font-size:14.5px;line-height:1.6}
+.red{color:var(--red);font-weight:800}
+.prog{display:flex;gap:6px;margin:6px 0 16px}.prog i{flex:1;height:4px;border-radius:4px;background:var(--line)}.prog i.on{background:var(--red)}
+.fld{margin-top:13px;position:relative}
+.fld label,.lbl{display:block;font-weight:600;font-size:13.5px;margin-bottom:6px}
+input[type=text],input[type=tel]{width:100%;padding:14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--fg);font-size:16px;outline:0;transition:.2s}
+input:focus{border-color:var(--red);box-shadow:0 0 0 4px #c8102e18}
+.bad input{border-color:var(--red)}.msg{color:var(--red);font-size:12.5px;margin-top:4px;display:none}.bad .msg{display:block}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{margin:0;border:1.5px solid var(--line);border-radius:30px;padding:10px 14px;cursor:pointer;font-size:14px;font-weight:500;transition:.15s;background:#fff;user-select:none}
+.chips input{display:none}.chips label:has(input:checked){background:var(--red);border-color:var(--red);color:#fff;transform:scale(1.03)}
+.btn{display:flex;gap:10px;align-items:center;justify-content:center;width:100%;border:0;background:linear-gradient(180deg,var(--red),var(--red2));color:#fff;font-weight:800;font-size:16px;letter-spacing:.4px;padding:16px;border-radius:14px;margin-top:20px;cursor:pointer;text-decoration:none;box-shadow:0 8px 22px #c8102e40;transition:.15s}
+.btn:active{transform:scale(.98)}.btn[disabled]{opacity:.6}
+.btn.alt{background:#fff;color:var(--fg);border:1.5px solid var(--line);box-shadow:none;font-weight:600;margin-top:10px;justify-content:space-between}
+.hide{display:none!important}
+.line{width:60px;height:2px;background:var(--red);margin:14px auto}
+.feat{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:24px 0 8px;text-align:center;font-size:10.5px;color:var(--mut)}
+.feat span{display:block;font-size:26px;margin-bottom:4px}
+.panels{display:flex;justify-content:center;align-items:flex-end;gap:5px;height:140px;margin:18px 0 8px;perspective:600px}
+.panels i{width:40px;border-radius:3px;box-shadow:3px 6px 12px #0004;transform:rotateY(-18deg);transition:.3s}.panels i:hover{transform:rotateY(0) translateY(-8px)}
+.script{font-family:"Segoe Script","Brush Script MT",cursive;text-align:center;font-size:22px;margin:22px 0 4px}
+.tiny{text-align:center;margin-top:26px;font-size:11px;letter-spacing:3px;color:var(--mut)}.tiny a{color:var(--mut);text-decoration:none}
+/* 3D */
+#k{position:fixed;inset:0;z-index:20;background:#e9e7e3;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+#kb{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#fffffff0;backdrop-filter:blur(8px);box-shadow:0 2px 12px #0002;z-index:2}
+#kb b{font-size:15px}#kb button{border:0;background:#f0eeea;padding:9px 14px;border-radius:10px;font-weight:700}
+#cv{flex:1;min-height:0;position:relative;touch-action:none;cursor:grab}#cv canvas{width:100%;height:100%;display:block}
+#hint{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:12px;color:#555;pointer-events:none}
+#tools{background:#fff;border-radius:22px 22px 0 0;box-shadow:0 -6px 24px #0002;padding:10px 0 12px;z-index:2}
+.tabs{display:flex;gap:6px;padding:0 12px 8px}.tabs button{border:0;background:#f0eeea;border-radius:20px;padding:8px 14px;font-size:13px;font-weight:600}.tabs button.on{background:var(--red);color:#fff}
+#sw{display:flex;gap:12px;overflow-x:auto;padding:4px 14px 8px;scrollbar-width:none}
+.s{flex:0 0 auto;text-align:center;font-size:11px;color:var(--mut);cursor:pointer;width:64px}
+.s i{display:block;width:54px;height:54px;border-radius:50%;margin:0 auto 4px;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--line);background-size:cover;transition:.15s}
+.s.on i{box-shadow:0 0 0 3px var(--red);transform:scale(1.08)}
+.fin{display:flex;gap:6px;padding:0 12px 8px;align-items:center;font-size:12px;color:var(--mut)}
+.fin button{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;font-size:12px}.fin button.on{border-color:var(--red);color:var(--red);font-weight:700}
+.acts{display:flex;gap:8px;padding:0 12px}.acts .btn{margin:0;padding:12px;font-size:14px}
+#toast{position:fixed;left:50%;bottom:140px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:30px;font-size:13px;z-index:40;opacity:0;transition:.3s;pointer-events:none}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="logo"><div class="mk">S</div><div><b>SALOMIL</b><small>SINCE 1982</small></div></div>
+
+ <!-- FORM -->
+ <section id="s1" class="card">
+  <div class="prog"><i class="on"></i><i></i><i></i></div>
+  <h1>Welcome / أهلاً بك</h1>
+  <p class="sub">Tell us about you to explore our collection<br>سجّل بياناتك لتستكشف مجموعتنا</p>
+  <form id="f" novalidate autocomplete="on">
+   <div class="fld"><label>Full Name / الاسم بالكامل *</label><input type="text" id="name" autocomplete="name"><div class="msg">Required / مطلوب</div></div>
+   <div class="fld"><label>Company Name / اسم الشركة *</label><input type="text" id="company" autocomplete="organization"><div class="msg">Required / مطلوب</div></div>
+   <div class="fld"><label>Job Title / المسمى الوظيفي *</label><input type="text" id="job" autocomplete="organization-title"><div class="msg">Required / مطلوب</div></div>
+   <div class="fld"><label>WhatsApp Number / رقم الواتساب *</label><input type="tel" id="wa" inputmode="tel" autocomplete="tel" placeholder="+20 1X XXXX XXXX" dir="ltr"><div class="msg">Enter a valid number with country code / أدخل رقماً صحيحاً</div></div>
+   <div class="fld"><label>Country / الدولة *</label><input type="text" id="country" list="cl" autocomplete="country-name"><datalist id="cl"></datalist><div class="msg">Required / مطلوب</div></div>
+   <div class="fld" id="gct"><span class="lbl">Customer Type / نوع العميل *</span><div class="chips" id="ct"></div>
+     <input type="text" id="cto" class="hide" placeholder="Other / أخرى" style="margin-top:8px"><div class="msg">Choose one / اختر واحداً</div></div>
+   <div class="fld" id="gpr"><span class="lbl">Interested Product / المنتج المهتم به *</span><div class="chips" id="pr"></div><div class="msg">Choose at least one / اختر واحداً على الأقل</div></div>
+   <button class="btn" id="go" type="submit">Submit / إرسال →</button>
+  </form>
+ </section>
+
+ <!-- THANK YOU -->
+ <section id="s2" class="card hide">
+  <div class="prog"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+  <h1 style="font-size:42px;margin-top:10px">Thank You!</h1>
+  <p class="sub">Your information has been successfully submitted.<br>We're excited to connect with you!</p>
+  <div class="line"></div>
+  <h2>Explore Our <span class="red">3D HPL</span> Designs &amp; Colors</h2>
+  <p class="sub">Discover our wide range of colors, textures and finishes in an interactive 3D catalogue.</p>
+  <button class="btn" id="o3">📖 &nbsp;VIEW 3D CATALOGUE &nbsp;→</button>
+  <div class="feat"><div><span>🎨</span>WIDE RANGE<br>OF COLORS</div><div><span>🧱</span>MULTIPLE<br>FINISHES</div><div><span>🛡️</span>DURABLE &amp;<br>LONG LASTING</div><div><span>🌿</span>SUSTAINABLE<br>CHOICE</div></div>
+  <div class="panels" id="pn"></div>
+  <div class="script">Let's Build Something Great Together</div><div class="line"></div>
+  <a class="btn alt" id="lwa" href="#" target="_blank" rel="noopener"><span>💬 Chat with Us <small>on WhatsApp</small></span>›</a>
+  <a class="btn alt" id="lsales" href="#"><span>📞 Contact Sales <small>Our team is ready to help</small></span>›</a>
+  <a class="btn alt" id="lpdf" href="#" target="_blank" rel="noopener"><span>⬇️ Download <small>PDF Catalogue</small></span>›</a>
+  <div class="tiny">SALOMIL HPL SURFACES</div>
+ </section>
+</div>
+
+<!-- 3D -->
+<div id="k" class="hide">
+ <div id="kb"><b id="cn">3D Catalogue</b><button id="kx">✕ Close</button></div>
+ <div id="cv"><div id="hint">Drag to rotate · Pinch / scroll to zoom &nbsp;|&nbsp; اسحب للتدوير</div></div>
+ <div id="tools">
+  <div class="tabs" id="tabs"></div>
+  <div id="sw"></div>
+  <div class="fin"><span>Finish:</span><button data-f="matte">Matte</button><button data-f="satin" class="on">Satin</button><button data-f="gloss">Gloss</button></div>
+  <div class="acts"><button class="btn" id="fav">❤ I like this</button><a class="btn alt" id="wq" href="#" target="_blank" rel="noopener" style="justify-content:center">Ask for quote</a></div>
+ </div>
+</div>
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ============ SETTINGS — EDIT THESE ============ */
+var ENDPOINT   = "https://script.google.com/macros/s/AKfycbyEP9MPZXMtTdadBejXXuGLX5D5h9TH63g2Lzr9fsxVfFGvwQYlW7eVgsZvhciPymm45A/exec";                      // <-- paste your Google Apps Script Web App URL here
+var WHATSAPP   = "201000000000";          // international format, no +
+var SALES_PHONE= "+201000000000";
+var PDF_URL    = "";                      // link to your PDF catalogue (leave "" to hide)
+/* ================================================ */
+var TYPES=[["Dealer","تاجر تجزئة"],["Importer","مستورد"],["Developer","مطور عقاري"],["Architect","مهندس معماري"],["Contractor","مقاول"],["Factory","مصنع"],["Other","أخرى"]];
+var PRODS=["HPL","Compact","Door Skin","Fiber Board","Post Forming"];
+var COUNTRIES="Egypt|Saudi Arabia|United Arab Emirates|Kuwait|Qatar|Bahrain|Oman|Jordan|Lebanon|Iraq|Libya|Algeria|Morocco|Tunisia|Sudan|Syria|Yemen|Palestine|Turkey|Iran|India|Pakistan|China|Italy|Germany|France|Spain|United Kingdom|United States|Nigeria|Kenya|Ethiopia|Other".split("|");
+var CATS=[
+ {k:"Wood",t:"wood",l:[["Walnut","#7a4a2b"],["Natural Oak","#c8a06a"],["Dark Oak","#5a3a22"],["Teak","#a8703a"],["Ash","#d9c3a0"]]},
+ {k:"Solid",t:"solid",l:[["Pure White","#f3f3f1"],["Cream","#e6dccb"],["Sage Green","#5d7a55"],["Navy","#24365a"],["Terracotta","#b0553a"],["Charcoal","#3b3d40"],["Jet Black","#141414"],["Salomil Red","#c8102e"]]},
+ {k:"Stone",t:"stone",l:[["Light Marble","#d9d6cf"],["Concrete","#9a9a98"],["Slate","#4a4d50"],["Beige Stone","#c9b79c"]]}
+];
+var $=function(i){return document.getElementById(i)};
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on')},2200)}
+
+/* ---------- build form bits ---------- */
+$('cl').innerHTML=COUNTRIES.map(function(c){return '<option value="'+c+'">'}).join('');
+$('ct').innerHTML=TYPES.map(function(x){return '<label><input type="radio" name="ct" value="'+x[0]+'"><span>'+x[0]+' / '+x[1]+'</span></label>'}).join('');
+$('pr').innerHTML=PRODS.map(function(x){return '<label><input type="checkbox" name="pr" value="'+x+'"><span>'+x+'</span></label>'}).join('');
+$('ct').onchange=function(){$('cto').classList.toggle('hide',document.querySelector('input[name=ct]:checked').value!=='Other')};
+$('pn').innerHTML=["#7a4a2b","#3b3d40","#d9d6cf","#5d7a55","#e6dccb","#141414"].map(function(c,i){return '<i style="background:'+c+';height:'+(105+i*7)+'px"></i>'}).join('');
+$('lwa').href="https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent("Hello Salomil, I visited your event.");
+$('lsales').href="tel:"+SALES_PHONE;
+if(PDF_URL)$('lpdf').href=PDF_URL;else $('lpdf').classList.add('hide');
+
+/* ---------- sending (Google Sheet) + offline queue ---------- */
+var QK="salomil_queue_v2", LEAD_ID=null, LEAD={};
+function q(){try{return JSON.parse(localStorage.getItem(QK)||"[]")}catch(e){return[]}}
+function setq(a){try{localStorage.setItem(QK,JSON.stringify(a))}catch(e){}}
+function post(obj){
+  if(!ENDPOINT)return Promise.reject("no endpoint");
+  return fetch(ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(obj)});
+}
+function send(obj){return post(obj).catch(function(){var a=q();a.push(obj);setq(a)})}
+function flush(){var a=q();if(!a.length||!ENDPOINT)return;setq([]);a.forEach(send)}
+addEventListener('online',flush);flush();
+
+/* ---------- validation / submit ---------- */
+function bad(id,on){$(id).closest('.fld').classList.toggle('bad',on);return !on}
+$('f').addEventListener('submit',function(e){
+  e.preventDefault();
+  var ct=document.querySelector('input[name=ct]:checked');
+  var pr=[].map.call(document.querySelectorAll('input[name=pr]:checked'),function(i){return i.value});
+  var digits=$('wa').value.replace(/\D/g,'');
+  var ok=[
+   bad('name',$('name').value.trim().length<2),bad('company',!$('company').value.trim()),bad('job',!$('job').value.trim()),
+   bad('wa',digits.length<8||digits.length>15),bad('country',!$('country').value.trim()),
+   bad('ct',!ct||(ct.value==='Other'&&!$('cto').value.trim())),bad('pr',!pr.length)
+  ].every(Boolean);
+  if(!ok){var f=document.querySelector('.bad');if(f)f.scrollIntoView({behavior:'smooth',block:'center'});return}
+  LEAD_ID="L"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  LEAD={kind:"lead",id:LEAD_ID,ts:new Date().toISOString(),name:$('name').value.trim(),company:$('company').value.trim(),job:$('job').value.trim(),
+    wa:$('wa').value.trim(),country:$('country').value.trim(),type:ct.value==='Other'?'Other: '+$('cto').value.trim():ct.value,products:pr.join(', ')};
+  $('go').disabled=true;$('go').textContent="Sending…";
+  send(LEAD);
+  $('s1').classList.add('hide');$('s2').classList.remove('hide');scrollTo(0,0);
+  $('wq').href="https://wa.me/"+WHATSAPP;
+});
+
+/* ---------- 3D catalogue ---------- */
+var T=null,sel={cat:0,i:0,fin:"satin"},mats=[],texCache={},loaded=false;
+$('o3').onclick=function(){$('k').classList.remove('hide');if(!loaded){loaded=true;init3d()}else{resize();T.touch()}};
+$('kx').onclick=function(){$('k').classList.add('hide')};
+$('tabs').innerHTML=CATS.map(function(c,i){return '<button data-c="'+i+'"'+(i?'':' class="on"')+'>'+c.k+'</button>'}).join('');
+function swatchBG(c,cat){var t=cat.t,col=c[1];if(t==='wood')return 'repeating-linear-gradient(90deg,'+col+' 0 3px,'+shade(col,-12)+' 3px 5px)';if(t==='stone')return 'radial-gradient(circle at 30% 30%,'+shade(col,15)+','+col+')';return col}
+function shade(h,p){var n=parseInt(h.slice(1),16),r=(n>>16)+p*2.55,g=((n>>8)&255)+p*2.55,b=(n&255)+p*2.55;function c(x){return Math.max(0,Math.min(255,Math.round(x)))}return 'rgb('+c(r)+','+c(g)+','+c(b)+')'}
+function drawSw(){var cat=CATS[sel.cat];$('sw').innerHTML=cat.l.map(function(c,i){return '<div class="s'+(i===sel.i?' on':'')+'" data-i="'+i+'"><i style="background:'+swatchBG(c,cat)+'"></i>'+c[0]+'</div>'}).join('')}
+$('tabs').onclick=function(e){var b=e.target.closest('button');if(!b)return;sel.cat=+b.dataset.c;sel.i=0;[].forEach.call($('tabs').children,function(x){x.classList.toggle('on',x===b)});drawSw();apply()};
+$('sw').onclick=function(e){var s=e.target.closest('.s');if(!s)return;sel.i=+s.dataset.i;drawSw();apply()};
+document.querySelector('.fin').onclick=function(e){var b=e.target.closest('button');if(!b)return;sel.fin=b.dataset.f;[].forEach.call(this.querySelectorAll('button'),function(x){x.classList.toggle('on',x===b)});apply()};
+drawSw();
+function mk(t,col){var key=t+col;if(texCache[key])return texCache[key];
+ var c=document.createElement('canvas');c.width=c.height=256;var g=c.getContext('2d');g.fillStyle=col;g.fillRect(0,0,256,256);var i;
+ if(t==='wood'){for(i=0;i<160;i++){g.fillStyle='rgba('+(Math.random()<.5?'0,0,0':'255,255,255')+','+(Math.random()*.1)+')';g.fillRect(Math.random()*256,0,1+Math.random()*3,256)}
+  g.strokeStyle='rgba(0,0,0,.08)';for(i=0;i<14;i++){g.beginPath();var x=Math.random()*256;g.moveTo(x,0);g.bezierCurveTo(x+14,80,x-14,170,x+6,256);g.stroke()}}
+ if(t==='stone'){for(i=0;i<3500;i++){g.fillStyle='rgba(0,0,0,'+Math.random()*.07+')';g.fillRect(Math.random()*256,Math.random()*256,2,2)}
+  g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=1.2;for(i=0;i<5;i++){g.beginPath();g.moveTo(Math.random()*256,0);g.bezierCurveTo(Math.random()*256,70,Math.random()*256,150,Math.random()*256,256);g.stroke()}}
+ var tx=new THREE.CanvasTexture(c);tx.wrapS=tx.wrapT=THREE.RepeatWrapping;return texCache[key]=tx}
+function apply(){var cat=CATS[sel.cat],c=cat.l[sel.i];
+ var rg={matte:.85,satin:.45,gloss:.12}[sel.fin];
+ mats.forEach(function(m){m.map=mk(cat.t,c[1]);m.color.set(0xffffff);m.roughness=rg;m.metalness=0;m.needsUpdate=true});
+ $('cn').textContent=c[0]+" · "+sel.fin[0].toUpperCase()+sel.fin.slice(1);
+ $('wq').href="https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent("Hello Salomil, I'm interested in "+c[0]+" ("+sel.fin+").");
+ if(T)T.touch()}
+$('fav').onclick=function(){var c=CATS[sel.cat].l[sel.i];
+ send({kind:"favorite",id:LEAD_ID,ts:new Date().toISOString(),color:c[0]+" ("+CATS[sel.cat].k+", "+sel.fin+")"});toast("Saved ❤ "+c[0])};
+function resize(){if(!T)return;var w=$('cv').clientWidth,h=$('cv').clientHeight;T.r.setSize(w,h);T.cam.aspect=w/h;T.cam.updateProjectionMatrix();T.touch()}
+function init3d(){
+ if(!window.THREE){$('cv').insertAdjacentHTML('beforeend','<p style="padding:30px">3D library failed to load. Check your internet.</p>');return}
+ var sc=new THREE.Scene();sc.background=new THREE.Color(0xe9e7e3);sc.fog=new THREE.Fog(0xe9e7e3,14,26);
+ var cam=new THREE.PerspectiveCamera(42,1,.1,60);
+ var r=new THREE.WebGLRenderer({antialias:true});r.setPixelRatio(Math.min(devicePixelRatio,2));r.shadowMap.enabled=true;r.shadowMap.type=THREE.PCFSoftShadowMap;
+ $('cv').insertBefore(r.domElement,$('hint'));
+ sc.add(new THREE.HemisphereLight(0xffffff,0xb9b2a6,.75));
+ var sun=new THREE.DirectionalLight(0xfff4e0,.65);sun.position.set(-4,7,5);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
+ Object.assign(sun.shadow.camera,{left:-7,right:7,top:7,bottom:-7});sc.add(sun);
+ function M(c,rg,mt){return new THREE.MeshStandardMaterial({color:c,roughness:rg==null?.5:rg,metalness:mt||0})}
+ function B(w,h,d,x,y,z,m){var o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;sc.add(o);return o}
+ function C(rt,rb,h,x,y,z,m,seg){var o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||24),m);o.position.set(x,y,z);o.castShadow=true;sc.add(o);return o}
+ var hpl=M(0xffffff,.45);mats.push(hpl);
+ var dark=M(0x2b2b2d,.55),top=M(0xe2dfd9,.25),steel=M(0xc4c6c9,.28,.85),wall=M(0xf4f2ee,.95);
+ // floor tile texture
+ var fc=document.createElement('canvas');fc.width=fc.height=256;var fg=fc.getContext('2d');fg.fillStyle='#b4afa6';fg.fillRect(0,0,256,256);fg.strokeStyle='#9c978d';fg.lineWidth=3;fg.strokeRect(0,0,256,256);
+ var ft=new THREE.CanvasTexture(fc);ft.wrapS=ft.wrapT=THREE.RepeatWrapping;ft.repeat.set(8,6);
+ var floor=B(11,.1,8.5,0,-.05,.2,new THREE.MeshStandardMaterial({map:ft,roughness:.3}));
+ B(11,4.2,.1,0,2.1,-3.05,wall);B(.1,4.2,6.3,-5.5,2.1,0,wall);
+ // window glow on left wall
+ B(.05,1.6,2.2,-5.43,2.3,.7,new THREE.MeshBasicMaterial({color:0xfffbe8}));
+ B(.08,.08,2.3,-5.4,3.1,.7,steel);B(.08,.08,2.3,-5.4,1.5,.7,steel);B(.08,1.7,.08,-5.4,2.3,.7,steel);
+ var wl=new THREE.PointLight(0xfff2d0,.5,12);wl.position.set(-4.8,2.3,.7);sc.add(wl);
+ // base units
+ var xs=[-3.1,-1.7,-.3,1.1,2.5];
+ xs.forEach(function(x,i){B(1.36,.2,.9,x,.1,-2.55,dark);B(1.36,.78,.9,x,.59,-2.55,dark);B(1.3,.74,.04,x,.6,-2.08,hpl);B(.5,.03,.03,x,.92,-2.04,steel)});
+ B(7.2,.06,1,-.25,1.01,-2.5,top);
+ // sink
+ B(.9,.02,.5,-1.7,1.045,-2.5,M(0x888b8f,.3,.9));C(.025,.025,.35,-1.7,1.22,-2.78,steel,12);
+ // hob + hood
+ B(.8,.015,.55,1.1,1.045,-2.5,M(0x0e0e0f,.2));[[.2,.12],[.2,-.12],[0,.12],[0,-.12]].forEach(function(p,i){C(.1,.1,.012,.95+p[0]*.9+.1,1.058,-2.5+p[1]*1.1,M(0x333,.3),20)});
+ B(.9,.12,.6,1.1,2.62,-2.7,steel);var hd=B(.35,.8,.3,1.1,3.2,-2.85,steel);
+ // wall units
+ [-3.1,-1.7,-.3].forEach(function(x){B(1.36,.95,.5,x,2.75,-2.78,dark);B(1.3,.9,.04,x,2.75,-2.52,hpl);B(.5,.03,.03,x,2.35,-2.47,steel)});
+ B(1.36,.95,.5,2.5,2.75,-2.78,dark);B(1.3,.9,.04,2.5,2.75,-2.52,hpl);
+ // tall + fridge
+ B(1.36,2.7,.9,3.95,1.35,-2.55,dark);B(1.3,2.65,.04,3.95,1.35,-2.08,hpl);B(.04,.9,.04,3.4,1.4,-2.02,steel);
+ B(.95,2.3,.85,-4.6,1.15,-2.5,steel);B(.01,.02,.7,-4.6,1.4,-2.07,dark);
+ // island
+ B(3.2,.82,1.1,0,.41,.5,dark);B(3.2,.07,1.25,0,.855,.5,top);
+ B(3.14,.76,.04,0,.42,1.07,hpl);B(.04,.76,1.04,1.58,.42,.5,hpl);B(.04,.76,1.04,-1.58,.42,.5,hpl);
+ [-1,0,1].forEach(function(s){C(.2,.2,.05,s*.9,.64,1.75,hpl,20);C(.025,.025,.6,s*.9,.32,1.75,steel,8);C(.14,.14,.02,s*.9,.02,1.75,steel,16)});
+ // pendants
+ [-.9,0,.9].forEach(function(x){C(.01,.01,1.2,x,3.5,.5,dark,6);C(.1,.2,.22,x,2.8,.5,dark,24);var bulb=new THREE.Mesh(new THREE.SphereGeometry(.07,12,12),new THREE.MeshBasicMaterial({color:0xfff2c0}));bulb.position.set(x,2.68,.5);sc.add(bulb)});
+ // plant
+ C(.12,.09,.22,3.4,1.14,-2.5,M(0xeeeeee,.7),16);var lf=new THREE.Mesh(new THREE.SphereGeometry(.2,12,12),M(0x4f7a45,.9));lf.position.set(3.4,1.4,-2.5);sc.add(lf);
+ // camera orbit
+ var th=.5,ph=.28,rad=9.5,drag=false,pts={},pd=0,last=0,auto=true,need=true;
+ function render(){cam.position.set(rad*Math.sin(th)*Math.cos(ph),rad*Math.sin(ph)+1.3,rad*Math.cos(th)*Math.cos(ph));cam.lookAt(0,1.2,-.4);r.render(sc,cam)}
+ var el=r.domElement;
+ function tick(t){requestAnimationFrame(tick);if($('k').classList.contains('hide'))return;if(auto){th=.5+Math.sin(t/4000)*.45;need=true}if(need){render();need=false}}
+ el.addEventListener('pointerdown',function(e){pts[e.pointerId]=[e.clientX,e.clientY];auto=false;el.setPointerCapture(e.pointerId);$('hint').style.display='none';if(Object.keys(pts).length===2){var a=Object.values(pts);pd=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1])}});
+ el.addEventListener('pointerup',function(e){delete pts[e.pointerId]});el.addEventListener('pointercancel',function(e){delete pts[e.pointerId]});
+ el.addEventListener('pointermove',function(e){var p=pts[e.pointerId];if(!p)return;var n=Object.keys(pts).length;
+  if(n===1){th-=(e.clientX-p[0])*.008;ph=Math.max(.04,Math.min(1.15,ph+(e.clientY-p[1])*.006))}
+  pts[e.pointerId]=[e.clientX,e.clientY];
+  if(n===2){var a=Object.values(pts),d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);rad=Math.max(4.5,Math.min(14,rad-(d-pd)*.03));pd=d}
+  need=true});
+ el.addEventListener('wheel',function(e){e.preventDefault();auto=false;rad=Math.max(4.5,Math.min(14,rad+e.deltaY*.01));need=true},{passive:false});
+ T={r:r,cam:cam,render:render,touch:function(){need=true}};
+ addEventListener('resize',resize);apply();setTimeout(resize,60);requestAnimationFrame(tick);
+}
+</script>
+</body>
+</html>
